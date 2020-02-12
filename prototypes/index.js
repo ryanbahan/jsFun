@@ -412,7 +412,11 @@ const weatherPrompts = {
     // return an array of all the average temperatures. Eg:
     // [ 40, 40, 44.5, 43.5, 57, 35, 65.5, 62, 14, 46.5 ]
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = weather.reduce((arr, weather) => {
+      let avg = (weather.temperature.high + weather.temperature.low) / 2;
+      arr.push(avg);
+      return arr;
+    }, [])
     return result;
 
     // Annotation:
@@ -426,7 +430,9 @@ const weatherPrompts = {
     // 'New Orleans, Louisiana is sunny.',
     // 'Raleigh, North Carolina is mostly sunny.' ]
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = weather
+                  .filter(place => place.type === 'sunny' || place.type === 'mostly sunny')
+                  .map(weather => {return `${weather.location} is ${weather.type}.`})
     return result;
 
     // Annotation:
@@ -442,7 +448,7 @@ const weatherPrompts = {
     //   temperature: { high: 49, low: 38 }
     // }
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = weather.sort((a,b) => b.humidity - a.humidity)[0];
     return result;
 
     // Annotation:
@@ -469,7 +475,12 @@ const nationalParksPrompts = {
     //   parksVisited: ["Rocky Mountain", "Acadia", "Zion"]
     //}
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = nationalParks.reduce((obj, park) => {
+      park.visited === true ?
+      obj.parksVisited.push(park.name) :
+      obj.parksToVisit.push(park.name);
+      return obj;
+    }, {parksToVisit: [], parksVisited: []});
     return result;
 
     // Annotation:
@@ -486,7 +497,12 @@ const nationalParksPrompts = {
     // { Florida: 'Everglades' } ]
 
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = nationalParks.reduce((parks, park) => {
+      let newItem = {};
+      newItem[park.location] = park.name;
+      parks.push(newItem);
+      return parks;
+    }, [])
     return result;
 
     // Annotation:
@@ -509,7 +525,11 @@ const nationalParksPrompts = {
     //   'backpacking',
     //   'rock climbing' ]
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = nationalParks.reduce((arr, park) => {
+      arr.push(...park.activities);
+      arr = [...new Set(arr)];
+      return arr;
+    }, [])
     return result;
 
     // Annotation:
@@ -536,7 +556,10 @@ const breweryPrompts = {
     // Return the total beer count of all beers for every brewery e.g.
     // 40
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = breweries.reduce((num, brewery) => {
+      num += brewery.beers.length;
+      return num;
+    }, 0)
     return result;
 
     // Annotation:
@@ -552,7 +575,12 @@ const breweryPrompts = {
     // ...etc.
     // ]
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = breweries.map(brewery => {
+      let obj = {};
+      obj.name = brewery.name;
+      obj.beerCount = brewery.beers.length;
+      return obj;
+    })
     return result;
 
     // Annotation:
@@ -564,7 +592,11 @@ const breweryPrompts = {
     // e.g.
     // { name: 'Barrel Aged Nature\'s Sweater', type: 'Barley Wine', abv: 10.9, ibu: 40 }
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = breweries
+                  .map(brewery => brewery.beers)
+                  .flat()
+                  .sort((a,b) => b.abv - a.abv)
+                  [0];
     return result;
 
     // Annotation:
@@ -612,7 +644,14 @@ const turingPrompts = {
     //  { name: 'Robbie', studentCount: 18 }
     // ]
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+
+    const result = instructors.reduce((arr, instructor) => {
+      let obj = {};
+      obj.name = instructor.name;
+      obj.studentCount = cohorts.find(cohort => cohort.module === instructor.module).studentCount;
+      arr.push(obj);
+      return arr;
+    }, [])
     return result;
 
     // Annotation:
@@ -626,7 +665,11 @@ const turingPrompts = {
     // cohort1804: 10.5
     // }
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = cohorts.reduce((obj, cohort) => {
+      obj[`cohort${cohort.cohort}`] = cohort.studentCount /
+      instructors.filter(instructor => instructor.module === cohort.module).length;
+      return obj;
+    }, {})
     return result;
 
     // Annotation:
@@ -648,7 +691,14 @@ const turingPrompts = {
     //     Will: [1, 2, 3, 4]
     //   }
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = instructors.reduce((obj, instructor) => {
+      obj[instructor.name] = cohorts
+                            .filter(cohort => cohort.curriculum
+                              .find(classTopic => classTopic === instructor.teaches
+                                .find(instructorTopic => instructorTopic === classTopic)))
+                                  .map(cohort => cohort.module);
+      return obj;
+    }, {})
     return result;
 
     // Annotation:
@@ -665,7 +715,16 @@ const turingPrompts = {
     //   recursion: [ 'Pam', 'Leta' ]
     // }
 
-    const result = 'REPLACE WITH YOUR RESULT HERE';
+    const result = instructors.map(instructor => instructor.teaches)
+                              .flat()
+                              .reduce((obj, topic) => {
+                                if (!obj[topic]) {
+                                  obj[topic] = instructors.filter(instructor => instructor.teaches
+                                              .includes(topic))
+                                              .map(obj => obj.name);
+                                }
+                                return obj;
+                              }, {})
     return result;
 
     // Annotation:
